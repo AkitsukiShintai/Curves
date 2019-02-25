@@ -17,6 +17,9 @@ public class Functions : MonoBehaviour
     public float tP; //t parameter, used for shell line
     //public List<Vector2> linePoints;
     //public List<Vector2> clickPoints;
+
+    //program3
+ 
     void Awake()
     {
         pointValues = new float[ARRAYNUMBER];
@@ -60,7 +63,7 @@ public class Functions : MonoBehaviour
         {
             case 0: //BBF        
                 //int d = points.Count - 1;
-                for (int i = 0; i < LINE_SEGMENT_COUNT + 1; ++i)
+                for (int i = 0; i < LINE_SEGMENT_COUNT+1; ++i)
                 {
                     for (int j = 0; j < d + 1; ++j)
                     {
@@ -71,7 +74,7 @@ public class Functions : MonoBehaviour
                     t += 1.0f / LINE_SEGMENT_COUNT;
                 }
 
-
+               
                 break;
             case 1: //NLI
                 //int d = points.Count - 1;
@@ -97,7 +100,7 @@ public class Functions : MonoBehaviour
                     linePoints.Add(new Vector3(t, tempArray1[0], 0));
                     t += 1.0f / LINE_SEGMENT_COUNT;
                 }
-                break;
+                break;         
             default:
                 break;
         }
@@ -129,15 +132,15 @@ public class Functions : MonoBehaviour
             case 0: //DC
                 t = 0;
 
-                for (int i = a.Count - 1; i >= 0; --i)
+                for (int i = a.Count-1; i >=0 ; --i)
                 {
                     shellPoints.Add(a[i]);
                 }
+               
+                DCShell(shellPoints, a,tP);
 
-                DCShell(shellPoints, a, tP);
 
-
-                for (int i = 0; i < LINE_SEGMENT_COUNT + 1; ++i)
+                for (int i = 0; i < LINE_SEGMENT_COUNT+1; ++i)
                 {
                     DC(linePoints, a, t);
                     t += 1.0f / LINE_SEGMENT_COUNT;
@@ -161,9 +164,23 @@ public class Functions : MonoBehaviour
                 return;
 
             case 2://mid point
-              
-                   MidpointAlg(linePoints, a, 5);
-                linePoints.Add(a[a.Count - 1]);
+                List<Vector3> up = new List<Vector3>();
+                List<Vector3> down = new List<Vector3>();
+               // List<Vector3> c = new List<Vector3>();
+                while (a.Count < 1000) {
+                    up.Clear();
+                    down.Clear();
+                    Midpoint(linePoints, a, up, down);
+                    a.Clear();
+                    List<Vector3> tee = a;
+                    a = linePoints;
+                    linePoints = tee;
+                }
+                for (int i = 0; i < a.Count; i++)
+                {
+                    linePoints.Add(a[i]);
+                }
+
                 return;
 
             default:
@@ -173,15 +190,14 @@ public class Functions : MonoBehaviour
 
     }
 
-    private void DCShell(List<Vector3> shellPoints, List<Vector3> clickPoints, float t)
-    {
+    private void DCShell(List<Vector3> shellPoints, List<Vector3> clickPoints, float t) {
         if (clickPoints.Count == 2)
         {
             return;
         }
 
         List<Vector3> tempClick = new List<Vector3>();
-        for (int i = 0; i < clickPoints.Count - 1; ++i)
+        for (int i = 0; i < clickPoints.Count-1; ++i)
         {
             Vector3 temp = t * clickPoints[i] + (1 - t) * clickPoints[i + 1];
             tempClick.Add(temp);
@@ -191,12 +207,12 @@ public class Functions : MonoBehaviour
             shellPoints.Add(tempClick[i]);
         }
         tempClick.Reverse();
-        DCShell(shellPoints, tempClick, 1 - t);
+        DCShell(shellPoints, tempClick, 1-t);
     }
 
-    private void DC(List<Vector3> linePoints, List<Vector3> clickPoints, float t)
+    private void DC( List<Vector3> linePoints, List<Vector3> clickPoints, float t)
     {
-        if (clickPoints.Count == 1)
+        if (clickPoints.Count ==1 )
         {
             linePoints.Add(clickPoints[0]);
             return;
@@ -207,51 +223,113 @@ public class Functions : MonoBehaviour
             Vector3 temp = t * clickPoints[i] + (1 - t) * clickPoints[i + 1];
             tempClick.Add(temp);
         }
-        DC(linePoints, tempClick, t);
+        DC(linePoints,tempClick,t);
     }
 
-    private void MidpointAlg(List<Vector3> linePoints, List<Vector3> inputPoints, int number)
+    private void Midpoint(List<Vector3> linePoints, List<Vector3> clickPoints, List<Vector3> upPoints, List<Vector3> downPoints)
     {
-        if (number == 0)
+
+        if (clickPoints.Count==1)
         {
-            for (int i = 0; i < inputPoints.Count-1; i++)
+            for (int i = 0; i < upPoints.Count; ++i)
             {
-                linePoints.Add(inputPoints[i]);
+                linePoints.Add(upPoints[i]);
             }
-            return;
-        }
-        List<Vector3> upPoints = new List<Vector3>();
-        List<Vector3> downPoints = new List<Vector3>();
-        MidpointSeparate(inputPoints, upPoints, downPoints);
-        number--;
-        MidpointAlg(linePoints, upPoints, number);
-        MidpointAlg(linePoints, downPoints, number);
 
+            linePoints.Add(clickPoints[0]);
 
-    }
-
-
-
-    private void MidpointSeparate(List<Vector3> inputPoints, List<Vector3> upPoints, List<Vector3> downPoints)
-    {
-
-        if (inputPoints.Count == 1)
-        {
-            upPoints.Add(inputPoints[0]);
-            downPoints.Add(inputPoints[0]);
-            downPoints.Reverse();
+            for (int i = downPoints.Count - 1; i >=0; --i)
+            {
+                linePoints.Add(downPoints[i]);              
+            }
             return;
         }
 
         List<Vector3> tempClick = new List<Vector3>();
-        for (int i = 0; i < inputPoints.Count - 1; ++i)
+        for (int i = 0; i < clickPoints.Count-1; ++i)
         {
-            tempClick.Add((inputPoints[i + 1] + inputPoints[i]) / 2.0f);
+            tempClick.Add((clickPoints[i + 1] + clickPoints[i]) / 2.0f);
         }
-        upPoints.Add(inputPoints[0]);
-        downPoints.Add(inputPoints[inputPoints.Count - 1]);
-        MidpointSeparate(tempClick, upPoints, downPoints);
+        upPoints.Add(clickPoints[0]);
+        downPoints.Add(clickPoints[clickPoints.Count-1]);
+        Midpoint(linePoints,tempClick,upPoints,downPoints);
 
+    }
+
+    public void functionsOFProgram3(List<Transform> clickPoints, List<Vector3> linePoints) {
+        double t = 0.0;
+        linePoints.Clear();
+        if (clickPoints.Count<2)
+        {
+            return;
+        }
+        List<Vector3> a = new List<Vector3>();
+        List<double> tArray = new List<double>();
+        List<double> xList = new List<double>();
+        List<double> yList = new List<double>();
+        for (int i = 0; i < clickPoints.Count; i++)
+        {
+            a.Add(Camera.main.ScreenToWorldPoint(clickPoints[i].position));
+            tArray.Add(i);
+            xList.Add(a[i].x);
+            yList.Add(a[i].y);
+        }
+       
+        
+        List<double> resultX = new List<double>();
+        List<double> resultY = new List<double>();
+        InterpolationPolynomial(tArray, xList, 1, resultX);
+        InterpolationPolynomial(tArray, yList, 1, resultY);
+        double D = tArray[tArray.Count-1];
+        double step = D/1000.0f;
+        for (int i = 0; i < 1000+1; ++i)
+        {
+            t = i * step;
+            double y = 0.0f;
+            double x = 0.0f;
+            for (int j = 0; j < resultX.Count; ++j)
+            {
+                if (j == 0)
+                {
+                    x += resultX[0];
+                    y += resultY[0];
+                }
+                else
+                {
+                    double tXti = 1.0f;
+                    for (int k = 0; k < j; ++k)
+                    {
+                        tXti *= t - tArray[j - k-1];
+                    }
+                    x += resultX[j] * tXti;
+
+                    y += resultY[j] * tXti;
+                }
+            }
+            linePoints.Add(new Vector3( (float)x, (float)y,0.0f));
+        }
+
+
+    }
+
+    private void InterpolationPolynomial(List<double> origin, List<double> current, int n, List<double> result) {
+        if (n== origin.Count)
+        {
+            return;
+        }
+        if (n == 1)
+        {
+            result.Add(current[0]);
+        }
+        List<double> temp = new List<double>();
+        for (int i = 0; i < current.Count-1; ++i)
+        {
+            double y = current[i + 1] - current[i];
+            double x = origin[i + n] -origin[i];
+            temp.Add(y/x);
+        }
+        result.Add(temp[0]);
+        InterpolationPolynomial(origin, temp, n + 1, result);
     }
 
     private int B(int d, int i)

@@ -35,6 +35,10 @@ public class DrawLine : MonoBehaviour
     public Slider tSlider;
     public Text tSliderText;
 
+    //program 3
+    public GameObject program3Objects;
+    public Text pro3Text;
+
     //initialize data
     private void Start()
     {
@@ -58,7 +62,7 @@ public class DrawLine : MonoBehaviour
         SetMainObjects(false);
         SetProgram2(false);
         SetProgram1(false);
-
+        SetProgram3(false);
     }
 
 
@@ -70,20 +74,29 @@ public class DrawLine : MonoBehaviour
                 SetMainObjects(false);
                 SetProgram2(false);
                 SetProgram1(false);
+                SetProgram3(false);
                 break;
 
             case 1:
                 
                 SetMainObjects(true);
                 SetProgram2(false);
+                SetProgram3(false);
                 SetProgram1(true);
                 Program1DChange("1");
                 break;
             case 2:
                 SetMainObjects(true);
                 SetProgram1(false);
-
+                SetProgram3(false);
                 SetProgram2(true);
+                break;
+            case 3:
+                SetMainObjects(true);
+                SetProgram1(false);
+                SetProgram2(false);
+                SetProgram3(true);
+
                 break;
             default:
                 break;
@@ -132,6 +145,11 @@ public class DrawLine : MonoBehaviour
         tSliderText.text = "t = " + val;
     }
 
+    void Program3Text() {
+        pro3Text.text = "" + clickPoints.Count;
+
+    }
+
 
     /// <summary>
     /// update
@@ -144,6 +162,10 @@ public class DrawLine : MonoBehaviour
                 break;
             case 2:
                 function.functionsOFProgram2(clickPoints, linePoints, shellPoints, alg.value);
+                break;
+            case 3:
+                function.functionsOFProgram3(clickPoints, linePoints);
+                Program3Text();
                 break;
             default:
                 break;
@@ -222,9 +244,6 @@ public class DrawLine : MonoBehaviour
         curveLine.isOn = true;
         shellLine.isOn = false;
         clickDrawPoint.SetActive(false);
-
-
-
     }
 
 
@@ -251,8 +270,25 @@ public class DrawLine : MonoBehaviour
         shellLine.isOn = false;
         program2Objects.SetActive(false);
         clickDrawPoint.SetActive(false);
-
     }
 
-
+    void SetProgram3(bool state) {
+        if (state == true)
+        {
+            program3Objects.SetActive(true);
+            pro3Text.text = "0";
+            clickDrawPoint.SetActive(true);
+            alg.options.Clear();
+            alg.AddOptions(new List<string> { "interpolating" });
+            return;
+        }
+        program3Objects.SetActive(false);
+        for (int i = 0; i < clickPoints.Count; i++)
+        {
+            Destroy(clickPoints[i].gameObject);
+        }
+        clickPoints.Clear();
+        clickDrawPoint.SetActive(false);
+        alg.gameObject.SetActive(false);
+    }
 }

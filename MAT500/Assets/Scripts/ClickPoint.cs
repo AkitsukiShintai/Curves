@@ -23,10 +23,14 @@ public class ClickPoint : MonoBehaviour
             }
             else
             {
-                GameObject go = GameObject.Instantiate(clickPointPrefab);
-                go.transform.parent = pointParent;
-                go.GetComponent<Transform>().position = Input.mousePosition;
-                drawLine.clickPoints.Add(go.transform);
+                if (drawLine.clickPoints.Count<21)
+                {
+                    GameObject go = GameObject.Instantiate(clickPointPrefab);
+                    go.transform.parent = pointParent;
+                    go.GetComponent<Transform>().position = Input.mousePosition;
+                    drawLine.clickPoints.Add(go.transform);
+                }
+                
             }
         }
 
